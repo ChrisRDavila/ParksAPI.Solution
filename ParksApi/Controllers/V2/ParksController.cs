@@ -16,9 +16,9 @@ namespace ParksApi.Controllers.V2
         _db = db;
         }
 
-        // GET api/parks
+        // GET api/v2/parks
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Park>>> Get(string name, string state, string features, int rating)
+        public async Task<ActionResult<IEnumerable<Park>>> Get(string name, string state, string features, int rating, int? page)
         {
             var query = _db.Parks.AsQueryable();
 
@@ -41,11 +41,17 @@ namespace ParksApi.Controllers.V2
             {
                 query = query.Where(entry => entry.Rating == rating);
             }
+            int pageSize = 2;
+            int currentPage = page ?? 1;
 
-            return await query.ToListAsync();
+            var pagedReviews = PagedList<Park>.ToPagedList(query, currentPage, pageSize);
+
+            return Ok(pagedReviews);
+
+            
         }
 
-        // GET: api/parks/5
+        // GET: api/v2/parks/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Park>> GetPark(int id)
         {
@@ -59,7 +65,7 @@ namespace ParksApi.Controllers.V2
             return park;
         }
 
-        // POST api/parks
+        // POST api/v2/parks
         [HttpPost]
         public async Task<ActionResult<Park>> Post(Park park)
         {
@@ -68,7 +74,7 @@ namespace ParksApi.Controllers.V2
             return CreatedAtAction(nameof(GetPark), new { id = park.ParkId }, park);
         }
 
-        // PUT: api/parks/5
+        // PUT: api/v2/parks/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Park park)
         
@@ -104,7 +110,7 @@ namespace ParksApi.Controllers.V2
             return _db.Parks.Any(e => e.ParkId == id);
         }
 
-        // DELETE: api/parks/5
+        // DELETE: api/v2/parks/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePark(int id)
         {
